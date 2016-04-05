@@ -1,4 +1,4 @@
-function [npv damage TC net] = estuaryi3(control_s,c,taum,n,k,tau,s,r,cost_s,cost_in,R,IN0,B,Target,gamma)
+function [npv damage IN net cost kgs kgi] = estuaryi3(control_s,c,taum,n,k,tau,s,r,cost_s,cost_in,R,IN0,B,Target,gamma,shellmax)
 % esturaryi2  - Simulates loading and estuary N stock
 % control_s - control matrix
 % c - source loadings uncontrolled
@@ -41,25 +41,34 @@ for i=taum+1:taum+n; % this loop runs the control through time
     
     tc1=sum(sum(c2)); % sums total load
     
-    IN(i)=dettman(tc1,R,TC(i-1),B); % calculates N stock for year i
+    IN1(i)=dettman(tc1,R,IN(i-1),B); % calculates N stock for year i
 
-    TC(i)= IN(i).*control_s1(s+1,i); % calculates N stock for year i after in estuary treatment
+    IN(i)= IN1(i).*control_s1(s+1,i); % calculates N stock for year i after in estuary treatment
     
     
-cost(i)=sum(cost_s.*(1./control_s1(1:s,i)-1).*c(1:s,i)) + (cost_in.*(1./control_s1(s+1,i)-1)).*IN(i); %creates cost of year i based on choices in control matrix
+cost(i)=sum(cost_s.*(1./control_s1(1:s,i)-1).*c(1:s,i)) + (cost_in.*(1./control_s1(s+1,i)-1)).*IN1(i); %creates cost of year i based on choices in control matrix
 
-damage(i)=((TC(i)-Target)^2)*gamma; %damages of N stock in estuary
+kgs(i)=sum((1./control_s1(1:s,i)-1).*c(1:s,i));
+kgi(i)=(1./control_s1(s+1,i)-1).*IN1(i);
 
-net(i)=(damage(i)+cost(i))*exp(-r*i); %  damages+costs
+damage(i)=((IN(i)-Target)^2)*gamma; %damages of N stock in estuary
+
+net(i)=(damage(i)+cost(i))*exp(-r*i); %  damages+costs discounted
 
 end
-
-%This part was when I was using fminsearch, needed to penalize non-feasible
-%options
-if control_s1(:,:)>0 & control_s1(:,:)<=1;
 npv=sum(net);
+% needed to penalize non-feasible options of aquiculture and controls
+%if control_s1(:,:)>0 & control_s1(:,:)<=1;
+%npv=sum(net);
 
-else
-    npv=10^100;
-end
+%else
+ %   npv=10^100;
+%end
+
+%if  IN1.*(1-control_s1(s+1,:)) < shellmax;
+  %  npv=sum(net);
+%else
+ %   npv=10^100;
+%end
+
 end
