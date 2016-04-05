@@ -12,14 +12,14 @@ clear all
 %parameters- these are all placeholders until we parameterize it for an
 %estuary system
 
-n=40                   % years
-s=4                    % sources
+n=30                   % years
+s=5                    % sources
 k=0                  % annual attenuation rate 
-r=.05                  % discount rate
+r=.01                 % discount rate
 B=  20983 +21561       % background/ non controllable sources
-R=   0                % net N caryover from year before
+R=   0               % net N caryover from year before
 Target= 52000          % target N load
-gamma=1000                % penalty for difference
+gamma=1                % penalty for difference
 shellmax= 1400              % max N removal from aquiculture
 maxsept= .5             %max % removal
 IN0=1                 %initial N stock?
@@ -37,17 +37,17 @@ cs(5,:)=2176
 
 
 
-cost_s=500             % cost parameter for source control
+cost_s=1000             % cost parameter for source control
 cost_in=100          % cost parameter for in-estuary control
 
 control_s=zeros(s+1,n);  % each cell represents the total load abated at source
-     
+control_s(:,:)=1   
 % This part gets the optimal control back and other outputs
 [npv damage IN net cost kgs kgi scap] = estuaryi5(control_s,cs,taum,n,k,tau,s,r,cost_s,cost_in,R,IN0,B,Target,gamma);
 
 mnpv=@(control_s) estuaryi5(control_s,cs,taum,n,k,tau,s,r,cost_s,cost_in,R,IN0,B,Target,gamma);
 
-options=optimset('Display','final','Algorithm','sqp','MaxFunEvals', 10e5,'TolX',10e-10,'PlotFcns',@optimplotfval,'MaxIter',1000);
+options=optimset('Display','final','Algorithm','sqp' ,'MaxFunEvals', 10e5,'PlotFcns',@optimplotfval,'MaxIter',1000,'TolX',1e-10);
 %options=optimset('Display','final','Algorithm','sqp','PlotFcns',@optimplotfval);
 
 lb=zeros(size(control_s));
@@ -63,11 +63,11 @@ const=@(x)septics(x,s,cs) %contrain abatement to septic totals?
 
 [x,fval,exitflag] =fmincon(mnpv,control_s,[],[],[],[],lb,ub,const,options);
 
-[npvop damageop INop netop cost kgsop kgiop scapop]=estuaryi5(x,cs,taum,n,k,tau,s,r,cost_s,cost_in,R,IN0,B,Target,gamma);
+[npvop damageop INop netop costop kgsop kgiop scapop]=estuaryi5(x,cs,taum,n,k,tau,s,r,cost_s,cost_in,R,IN0,B,Target,gamma);
 
 
 %plots control and in estuary N over time
-scapop(s+1,taum+1:end)=x(s+1,:)
+scapop(s+1,taum+1:end)=x(s+1,:);
 
 subplot(2,1,1)
 plot(scapop')

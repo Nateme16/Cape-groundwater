@@ -1,4 +1,4 @@
-function [npv damage IN net cost kgs kgi scap] = estuaryi5(control_s,c,taum,n,k,tau,s,r,cost_s,cost_in,R,IN0,B,Target,gamma)
+function [npv damage IN net cost kgs kgi scap] = estuaryi5(control_s,cs,taum,n,k,tau,s,r,cost_s,cost_in,R,IN0,B,Target,gamma)
 % esturaryi2  - Simulates loading and estuary N stock
 % control_s - control matrix
 % c - source loadings uncontrolled
@@ -19,7 +19,7 @@ cost=zeros(1,s)';
 control_s1=[ones(s+1,taum) control_s];
 
 for ii=1:s; %pre-control period attenuated controllable load
-   cstart(ii)=c(ii,1)*exp(-k*tau(ii));
+   cstart(ii)=cs(ii,1)*exp(-k*tau(ii));
 end
 
 TCstart=sum(sum(cstart)); 
@@ -39,8 +39,7 @@ for i=taum+1:taum+n; % this loop runs the control through time
  
     for ii=1:s; 
     scap(ii,i)=scap(ii,i-1) + control_s1(ii,i); %source tech capital
-    c2(ii,1)=(c(ii,i-tau(ii)) - scap(ii,i-tau(ii)) )*exp(-k*tau(ii));%calculates total load depending on year and control with delay time tau and attenuation
-    
+    c2(ii,1)=(cs(ii,i-tau(ii)) - scap(ii,i-tau(ii)) )*exp(-k*tau(ii));%calculates total load depending on year and control with delay time tau and attenuation
     end
     
     tc1=sum(sum(c2)); % sums total load
@@ -55,7 +54,7 @@ cost(i)=sum(cost_s.*(scap(:,i))) + (cost_in.*(control_s1(s+1,i))); %creates cost
 kgs(i)=sum(scap(:,i));
 kgi(i)=control_s1(s+1,i);
 
-damage(i)=((IN(i)-Target)*gamma)^2; %damages of N stock in estuary
+damage(i)=((IN(i)-Target)^2)*gamma; %damages of N stock in estuary
 
 net(i)=(damage(i)+cost(i))*exp(-r*i); %  damages+costs discounted
 
