@@ -49,7 +49,7 @@ for i=taum+1:taum+n; % this loop runs the control through time
     IN(i)= IN1(i)-control_s1(s+1,i); % calculates N stock for year i after in estuary treatment
     
     
-cost(i)=sum(cost_s.*(scap(:,i))) + (cost_in.*(control_s1(s+1,i))); %creates cost of year i based on choices in control matrix
+cost(i)=sum(cost_s.*(scap(:,i))) + (cost_in.*(control_s1(s+1,i).^2)); %creates cost of year i based on choices in control matrix
 
 kgs(i)=sum(scap(:,i));
 kgi(i)=control_s1(s+1,i);
