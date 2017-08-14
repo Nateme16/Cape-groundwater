@@ -17,14 +17,15 @@ s=5                    % sources
 k=.1                  % annual attenuation rate 
 r=.05                % discount rate
 B=  20983 +21561       % background/ non controllable sources
-R=   .3               % net N caryover from year before
+R=   0               % net N caryover from year before
 Target= 52000          % target N load
 gamma=1                % penalty for difference
-shellmax= 1400              % max N removal from aquiculture
+shellmax= 1400         % max N removal from aquiculture
 maxsept= .6             %max % removal
 IN0=1                 %initial N stock?
 
-%tau=randi([0 100],[s,1]) % distribution of transit times
+%tau=randi([0 100],[s,1]) 
+% distribution of transit times
 tau= [1,5,10,15,20]'        %transit time for each source
 taum=max(tau)          %this is used to deal with load before choice years
 cs=zeros(s,n+taum)      % matrix of sources
@@ -67,8 +68,8 @@ const=@(x)septics(x,s,cs) %contrain abatement to septic totals?
 scapop(s+1,taum+1:end)=x(s+1,:);
 
 subplot(2,1,1)
-plot(scapop(:,1+taum:end)')
+plot(scapop(:,taum:end)')
 subplot(2,1,2)
-plot(INop(:,1+taum:end)-Target)
+plot(INop(:,taum:end)-Target)
 
 %plot(damage(1+taum:end))

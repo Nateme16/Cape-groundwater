@@ -22,7 +22,7 @@ for ii=1:s; %pre-control period attenuated controllable load
    cstart(ii)=cs(ii,1)*exp(-k*tau(ii));
 end
 
-TCstart=sum(sum(cstart)); 
+TCstart=sum(sum(cstart)); %needs to be delayed?
 TC=zeros(1,n);
 TC(:,:)=TCstart;
 
